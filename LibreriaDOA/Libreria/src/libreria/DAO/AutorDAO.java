@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package libreria.DOA;
+package libreria.DAO;
 
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -90,7 +90,25 @@ public class AutorDAO extends DAO<Autor> {
 
     public List<Integer> idAutoresDisponibles() {
         String sql = "select id from autores;";
+        Query query = entityManager.createNativeQuery(sql);
+        return query.getResultList();
+    }
+
+    public List<String> nombreAutoresDisponibles() {
+        String sql = "select nombre from autores;";
+        Query query = entityManager.createNativeQuery(sql);
+        return query.getResultList();
+    }
+
+    public List<Autor> listarAutoresConLibros() {
+        String sql = "select distinct autores.* from libros inner join autores on libros.AUTOR_ID=autores.ID;";
         Query query = entityManager.createNativeQuery(sql, Autor.class);
         return query.getResultList();
     }
+    
+    public List<Autor> listarAutoresSinLibros() {
+        String sql = "select distinct autores.* from libros right join autores on libros.AUTOR_ID=autores.ID where libros.AUTOR_ID is null;";
+        Query query = entityManager.createNativeQuery(sql, Autor.class);
+        return query.getResultList();
+    } 
 }

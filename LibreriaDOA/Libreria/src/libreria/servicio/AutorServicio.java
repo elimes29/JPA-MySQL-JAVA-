@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Scanner;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import libreria.DOA.AutorDAO;
-import libreria.DOA.LibroDAO;
+import libreria.DAO.AutorDAO;
+import libreria.DAO.LibroDAO;
 import libreria.entidades.Autor;
 import libreria.entidades.Libro;
 
@@ -45,13 +45,18 @@ public class AutorServicio {
         System.out.println("Los autores dispinibles son:");
         List<Autor> autorLista;
         autorLista = autorDao.listarAutores();
-        for (Autor autor : autorLista) {
-            String activo = "No";
-            if (autor.getAlta()) {
-                activo = "Si";
+        if (autorLista.size() > 0) {
+            for (Autor autor : autorLista) {
+                String activo = "No";
+                if (autor.getAlta()) {
+                    activo = "Si";
+                }
+                System.out.println("Id: " + autor.getId() + "/ Nombre: " + autor.getNombre() + "/ Activo: " + activo);
             }
-            System.out.println("Id: " + autor.getId() + "/ Nombre: " + autor.getNombre() + "/ Activo: " + activo);
+        } else {
+            System.out.println("No hay autores que mostar");
         }
+
     }
 
     public Boolean mostrarAutoresActivos() {
@@ -112,6 +117,7 @@ public class AutorServicio {
     }
 
     public List<Autor> buscarAutorporNombre() {
+
         System.out.println("Ingrese el nombre del autor a buscar");
         String nombre = leer.nextLine();
         List<Autor> listaAutores = autorDao.buscarAutorPorNombre(nombre);
@@ -178,7 +184,7 @@ public class AutorServicio {
                     System.out.println("error de id de autor");
                 }
 
-            }else{
+            } else {
                 System.out.println("*************NO HAY AUTOR CON ESE ID********************");
             }
 
@@ -189,18 +195,55 @@ public class AutorServicio {
     }
 
     public void eliminarAutor() throws Exception {
-        autorDao.listarAutores();
+        mostrarAutores();
         System.out.println("Cuál autor desea eliminar?, indique el id");
         int id = leer1.nextInt();
-        Autor autor = autorDao.buscarAutorPorId(id);
-        List<Libro> libros = libroDao.buscarLibrosPorAutor(autor);
-        if (libros.isEmpty()) {
-            autorDao.eliminar(autor);
-            System.out.println("*************Autor Eliminando exitosamente**********");
+
+        if (autorDao.idAutoresDisponibles().contains(id)) {
+            Autor autor = autorDao.buscarAutorPorId(id);
+            List<Libro> libros = libroDao.buscarLibrosPorAutor(autor);
+            if (libros.isEmpty()) {
+                autorDao.eliminar(autor);
+                System.out.println("*************Autor Eliminando exitosamente**********");
+            } else {
+                System.out.println("******NO SE PUEDE ELIMINAR PORQUE HAY LIBROS DE ESE AUTOR**************");
+            }
         } else {
-            System.out.println("******NO SE PUEDE ELIMINAR PORQUE HAY LIBROS DE ESE AUTOR**************");
+            System.out.println("***********Id inresado no coincide con Id de algún autor***********");
         }
 
+    }
+
+    public void mostrarAutoresConLibros() {
+        List<Autor> autores = autorDao.listarAutoresConLibros();
+
+        if (autores.size() > 0) {
+            for (Autor autor : autores) {
+                String activo = "No";
+                if (autor.getAlta()) {
+                    activo = "Si";
+                }
+                System.out.println("Id: " + autor.getId() + "/ Nombre: " + autor.getNombre() + "/ Activo: " + activo);
+            }
+        } else {
+            System.out.println("No hay autores que mostar");
+        }
+    }
+
+    public void mostrarAutoresSinLibros() {
+        List<Autor> autores = autorDao.listarAutoresSinLibros();
+
+        if (autores.size() > 0) {
+            for (Autor autor : autores) {
+                String activo = "No";
+                if (autor.getAlta()) {
+                    activo = "Si";
+                }
+                System.out.println("Id: " + autor.getId() + "/ Nombre: " + autor.getNombre() + "/ Activo: " + activo);
+            }
+        } else {
+            System.out.println("No hay autores que mostar");
+        }
     }
 
 }

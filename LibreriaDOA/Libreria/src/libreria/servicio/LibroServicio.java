@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import libreria.DOA.LibroDAO;
+import libreria.DAO.LibroDAO;
 import libreria.entidades.Autor;
 import libreria.entidades.Editorial;
 import libreria.entidades.Libro;
@@ -51,7 +51,7 @@ public class LibroServicio {
             int cantEjemplares = leer1.nextInt();
             libro.setEjemplares(cantEjemplares);
             libro.setEjemplaresPrestados(0);
-            libro.setEjemplaresRestantes(cantEjemplares);
+            libro.setEjemplaresRestantes(libro.getEjemplares());
             libro.setAlta(true);
 
             //Agregando Autor
@@ -152,6 +152,7 @@ public class LibroServicio {
 
 //11) Búsqueda de un libro/s por nombre de Autor.
     public void buscarLibroPorNombreAutor() {
+
         autorServicio.mostrarAutores();
         List<Autor> autores = autorServicio.buscarAutorporNombre();
 
@@ -192,36 +193,54 @@ public class LibroServicio {
 
     }
 
-    public void sacarLibro() {
+    public void sacarLibro() throws Exception {
         System.out.println("Los libros disponibles son:");
         mostrarLibros();
         System.out.println("Ingrese el ISBN del libro que desea sacar");
         long isbn = leer1.nextLong();
-        Libro libro = libroDao.buscarLibroPorIsbn(isbn);
 
-        if (libro.getEjemplaresRestantes() > 0) {
-            libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + 1);
-            libro.setEjemplaresRestantes(libro.getEjemplaresRestantes() - 1);
-            System.out.println("*******LIbro entregado***********");
+        if (libroDao.isbnLibrosDisponibles().contains(isbn)) {
+
+            Libro libro = libroDao.buscarLibroPorIsbn(isbn);
+
+            if (libro.getEjemplaresRestantes() > 0) {
+                libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + 1);
+                libro.setEjemplaresRestantes(libro.getEjemplares() - libro.getEjemplaresPrestados());
+                System.out.println("*******LIbro entregado***********");
+            } else {
+                System.out.println("No hay ejemplares dispinibles de ese libro");
+            }
+             libroDao.modificar(libro);
         } else {
-            System.out.println("No hay ejemplares dispinibles de ese libro");
+            System.out.println("*******INGRESÓ UN ISBN INCORRECTO***********");
         }
+
     }
 
-    public void entregarLibro() {
+    public void entregarLibro() throws Exception {
         System.out.println("Los libros disponibles son:");
         mostrarLibros();
         System.out.println("Ingrese el ISBN del libro que desea entregar");
-        long isbn = leer1.nextLong();
-        Libro libro = libroDao.buscarLibroPorIsbn(isbn);
+        Long isbn = leer1.nextLong();
 
-        if (libro.getEjemplares() > libro.getEjemplaresRestantes()) {
-            libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() - 1);
-            libro.setEjemplaresRestantes(libro.getEjemplaresRestantes() + 1);
-            System.out.println("*******LIbro recibido***********");
+        if (libroDao.isbnLibrosDisponibles().contains(isbn)) {
+
+            Libro libro = libroDao.buscarLibroPorIsbn(isbn);
+
+            if (libro.getEjemplares() > libro.getEjemplaresRestantes()) {
+                libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() - 1);
+                libro.setEjemplaresRestantes(libro.getEjemplares() - libro.getEjemplaresPrestados());
+                System.out.println("*******LIbro recibido***********");
+            } else {
+                System.out.println("No es posible devolver ese libro porque la cantidad de ejemlares disponibles es la cantidad de ejemplares totales");
+            }
+             libroDao.modificar(libro);
+
         } else {
-            System.out.println("No es posible devolver ese libro porque la cantidad de ejemlares disponibles es la cantidad de ejemplares totales");
+            System.out.println("*******INGRESÓ UN ISBN INCORRECTO***********");
         }
+        
+
     }
 
     public void aregarEditorialALibro() throws Exception {

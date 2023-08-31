@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package libreria.DOA;
+package libreria.DAO;
 
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -39,18 +39,26 @@ public class LibroDAO extends DAO {
         Query query = entityManager.createNativeQuery(sql, Libro.class);
         return query.getResultList();
     }
-    
-    public List<Libro> buscarLibrosPorAutor(Autor autor){
-        String sql = "select * from libros inner join autores on libros.editorial_id=autores.id where autores.id like '" + autor.getId() + "';";
+
+    public List<Libro> buscarLibrosPorAutor(Autor autor) {
+        String sql = "select * from libros inner join autores on libros.autor_id=autores.id where autores.id like " + autor.getId() + ";";
         Query query = entityManager.createNativeQuery(sql, Libro.class);
         return query.getResultList();
-        
     }
-    
-        public List<Libro> buscarLibrosPorEditorial(Editorial editorial){
-        String sql = "select * from libros inner join editoriales on libros.editorial_id=editoriales.id where editoriales.id like '" + editorial.getId() + "';";
+
+    public List<Libro> buscarLibrosPorEditorial(Editorial editorial) {
+        String sql = "select * from libros inner join editoriales on libros.autor_id=editoriales.id where editoriales.id like '" + editorial.getId() + "';";
         Query query = entityManager.createNativeQuery(sql, Libro.class);
         return query.getResultList();
-        
+
     }
+
+    public List<Long> isbnLibrosDisponibles() {
+        
+        String sql = "select isbn from libros;";
+        Query query = entityManager.createNativeQuery(sql);
+        return query.getResultList();
+    }
+    
+
 }
