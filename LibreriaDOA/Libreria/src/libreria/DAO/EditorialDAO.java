@@ -81,10 +81,16 @@ public class EditorialDAO extends DAO {
         Query query = entityManager.createNativeQuery(sql, Editorial.class);
         return query.getResultList();
     }
-    
+
     public List<Editorial> listarEditorialesSinLibros() {
         String sql = "select distinct editoriales.* from libros right join editoriales on libros.EDITORIAL_ID=editoriales.ID where libros.EDITORIAL_ID is null;";
         Query query = entityManager.createNativeQuery(sql, Editorial.class);
+        return query.getResultList();
+    }
+
+    public List<String> nombreEditorialesDisponibles() {
+        String sql = "select nombre from editoriales;";
+        Query query = entityManager.createNativeQuery(sql);
         return query.getResultList();
     }
 

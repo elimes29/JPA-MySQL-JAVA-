@@ -47,7 +47,7 @@ public class LibroDAO extends DAO {
     }
 
     public List<Libro> buscarLibrosPorEditorial(Editorial editorial) {
-        String sql = "select * from libros inner join editoriales on libros.autor_id=editoriales.id where editoriales.id like '" + editorial.getId() + "';";
+        String sql = "select * from libros where EDITORIAL_ID like " + editorial.getId() + ";";
         Query query = entityManager.createNativeQuery(sql, Libro.class);
         return query.getResultList();
 

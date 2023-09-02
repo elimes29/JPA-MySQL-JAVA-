@@ -38,7 +38,7 @@ public class EditorialServicio {
             Editorial editorial = new Editorial();
             System.out.println("Ingrese el nombre de la editorial");
             System.out.println("");
-            String nombre = leer.nextLine();
+            String nombre = leer.nextLine().toUpperCase();
             editorial.setNombre(nombre);
             editorial.setAlta(true);
             System.out.println("Editroial Creado exitosamente");
@@ -113,10 +113,25 @@ public class EditorialServicio {
                         System.out.println("Desea modificar el nombre del editorial? (S/N)");
                         String siNo1 = leer.nextLine();
                         if (siNo1.equalsIgnoreCase("S")) {
-                            System.out.println("Cual es el nuevo nombre del Editorial?");
-                            System.out.println("");
-                            String nombreNuevo = leer.nextLine();
-                            editorial.setNombre(nombreNuevo);
+                            
+                            
+                             List<String> nombreEditoriales = editorialDao.nombreEditorialesDisponibles();
+                            boolean editorialRepetido = true;
+
+                            while (editorialRepetido) {
+                                //Validando no ingresar un nombre de autor existente
+                                System.out.println("Cual es el nuevo nombre del editorial?");
+                                System.out.println("");
+                                String nombreNuevo = leer.nextLine().toUpperCase();
+                                if (nombreEditoriales.contains(nombreNuevo)) {
+                                    System.out.println("El nombre de ese editorial ya se encuantra agreado");
+                                } else {
+                                    editorial.setNombre(nombreNuevo);
+                                    editorialRepetido = false;
+                                    System.out.println("Nombre de editorial correcto");
+                                }
+                            }
+                            
                             editorialDao.modificar(editorial);
 
                         }

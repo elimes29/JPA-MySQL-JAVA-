@@ -13,6 +13,7 @@ import libreria.DAO.LibroDAO;
 import libreria.entidades.Autor;
 import libreria.entidades.Editorial;
 import libreria.entidades.Libro;
+import libreria.entidades.Realizado;
 
 /**
  *
@@ -125,6 +126,7 @@ public class LibroServicio {
     public void mostrarLibros() {
         List<Libro> libroLista;
         libroLista = libroDao.listarLibros();
+        System.out.println("Los libros disponibles son: ");
         for (Libro libro : libroLista) {
 
             System.out.println("ISBN: " + libro.getIsbn() + "/ Título: " + libro.getTitulo() + "/ Año de pub: " + libro.getAnio() + "/ Autor: "
@@ -132,6 +134,7 @@ public class LibroServicio {
                     + libro.getEjemplaresRestantes() + "/Prestados: " + libro.getEjemplaresPrestados());
 
         }
+        System.out.println("Hay "+libroLista.size()+" libos disponibles.");
     }
 
     public void eliminarlibro() throws Exception {
@@ -155,9 +158,12 @@ public class LibroServicio {
 
         autorServicio.mostrarAutores();
         List<Autor> autores = autorServicio.buscarAutorporNombre();
+        System.out.println("Los libros de este autor son: ");
+       int cantLibros =0;
 
         for (Autor autor : autores) {
             List<Libro> libros = libroDao.buscarLibrosPorAutor(autor);
+            cantLibros = cantLibros+libros.size();
             if (!(libros.size() < 1)) {
                 for (Libro libro : libros) {
                     System.out.println("ISBN: " + libro.getIsbn() + "/ Título: " + libro.getTitulo() + "/ Año de pub: " + libro.getAnio() + "/ Autor: "
@@ -169,6 +175,7 @@ public class LibroServicio {
             }
 
         }
+        System.out.println("Este autor tiene "+cantLibros +" libros");
 
     }
 
@@ -179,6 +186,7 @@ public class LibroServicio {
 
         for (Editorial editorial : editoriales) {
             List<Libro> libros = libroDao.buscarLibrosPorEditorial(editorial);
+            System.out.println("La cantidad de libros de esta editorial son: "+libros.size());
             if (!(libros.size() < 1)) {
                 for (Libro libro : libros) {
                     System.out.println("ISBN: " + libro.getIsbn() + "/ Título: " + libro.getTitulo() + "/ Año de pub: " + libro.getAnio() + "/ Autor: "
@@ -191,21 +199,25 @@ public class LibroServicio {
 
         }
 
+        
     }
 
-    public void sacarLibro() throws Exception {
+    public Realizado  sacarLibro() throws Exception {
         System.out.println("Los libros disponibles son:");
         mostrarLibros();
         System.out.println("Ingrese el ISBN del libro que desea sacar");
         long isbn = leer1.nextLong();
+        Libro libro = new Libro();
+        Boolean cent = false;
 
         if (libroDao.isbnLibrosDisponibles().contains(isbn)) {
 
-            Libro libro = libroDao.buscarLibroPorIsbn(isbn);
+            libro = libroDao.buscarLibroPorIsbn(isbn);
 
             if (libro.getEjemplaresRestantes() > 0) {
                 libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + 1);
                 libro.setEjemplaresRestantes(libro.getEjemplares() - libro.getEjemplaresPrestados());
+                cent=true;
                 System.out.println("*******LIbro entregado***********");
             } else {
                 System.out.println("No hay ejemplares dispinibles de ese libro");
@@ -214,25 +226,32 @@ public class LibroServicio {
         } else {
             System.out.println("*******INGRESÓ UN ISBN INCORRECTO***********");
         }
+         Realizado realizado = new Realizado(libro,cent);
 
+        return realizado;
     }
 
-    public void entregarLibro() throws Exception {
-        System.out.println("Los libros disponibles son:");
-        mostrarLibros();
+    public Realizado entregarLibro(List<Long> isbns) throws Exception {
+        
+        
         System.out.println("Ingrese el ISBN del libro que desea entregar");
         Long isbn = leer1.nextLong();
+        Libro libro = new Libro();
+          Realizado realizado = new Realizado();
 
-        if (libroDao.isbnLibrosDisponibles().contains(isbn)) {
+        if (isbns.contains(isbn)) {
 
-            Libro libro = libroDao.buscarLibroPorIsbn(isbn);
+            libro = libroDao.buscarLibroPorIsbn(isbn);
+          
 
             if (libro.getEjemplares() > libro.getEjemplaresRestantes()) {
                 libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() - 1);
                 libro.setEjemplaresRestantes(libro.getEjemplares() - libro.getEjemplaresPrestados());
+                realizado.setReaizado(true);
                 System.out.println("*******LIbro recibido***********");
             } else {
                 System.out.println("No es posible devolver ese libro porque la cantidad de ejemlares disponibles es la cantidad de ejemplares totales");
+                realizado.setReaizado(false);
             }
              libroDao.modificar(libro);
 
@@ -241,6 +260,7 @@ public class LibroServicio {
         }
         
 
+        return realizado;
     }
 
     public void aregarEditorialALibro() throws Exception {
@@ -284,5 +304,9 @@ public class LibroServicio {
         libro.setAutor(autor);
         libroDao.modificar(libro);
         System.out.println("************Modificado el Autor exitosamente****************");
+    }
+    
+    public List<Long> listarIsbnDeLibros(){
+        return libroDao.isbnLibrosDisponibles();
     }
 }

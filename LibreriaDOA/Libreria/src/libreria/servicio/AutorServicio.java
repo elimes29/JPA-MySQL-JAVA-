@@ -34,7 +34,8 @@ public class AutorServicio {
     public Autor crearAutor() throws Exception {
         Autor autor = new Autor();
         System.out.println("Ingrese el Nombre del Autor");
-        autor.setNombre(leer.nextLine());
+        String nombre = leer.nextLine().toUpperCase();
+        autor.setNombre(nombre);
         autor.setAlta(true);
         autorDao.guardar(autor);
         System.out.println("************Autor Creado exitosamente********");
@@ -166,10 +167,23 @@ public class AutorServicio {
                         System.out.println("Desea modificar el nombre del Autor? (S/N)");
                         String siNo1 = leer.nextLine();
                         if (siNo1.equalsIgnoreCase("S")) {
-                            System.out.println("Cual es el nuevo nombre del autor?");
-                            System.out.println("");
-                            String nombreNuevo = leer.nextLine();
-                            autor.setNombre(nombreNuevo);
+                            List<String> nombreAutores = autorDao.nombreAutoresDisponibles();
+                            boolean autorRepetido = true;
+
+                            while (autorRepetido) {
+                                //Validando no ingresar un nombre de autor existente
+                                System.out.println("Cual es el nuevo nombre del autor?");
+                                System.out.println("");
+                                String nombreNuevo = leer.nextLine().toUpperCase();
+                                if (nombreAutores.contains(nombreNuevo)) {
+                                    System.out.println("El nombre de ese autor ya se encuantra agreado");
+                                } else {
+                                    autor.setNombre(nombreNuevo);
+                                    autorRepetido = false;
+                                    System.out.println("Nombre de autor correcto");
+                                }
+                            }
+
                             autorDao.modificar(autor);
 
                         }
